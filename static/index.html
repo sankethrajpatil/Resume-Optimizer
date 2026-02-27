@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resume Optimizer</title>
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #1a1a1f;
+      --border: #2d2d35;
+      --text: #e4e4e7;
+      --muted: #a1a1aa;
+      --accent: #7c3aed;
+      --accent-hover: #8b5cf6;
+      --error: #f87171;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .tab:hover { border-color: var(--accent); }
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .panel {
+      display: none;
+      margin-bottom: 1.5rem;
+    }
+    .panel.active { display: block; }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+    }
+    input[type="url"], textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn {
+      padding: 0.65rem 1.25rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .mt-1 { margin-top: 1rem; }
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .msg.error { background: rgba(248,113,113,0.15); color: var(--error); }
+    .msg.success { background: rgba(74,222,128,0.15); color: var(--success); }
+    #result {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    #result h2 {
+      font-size: 1.1rem;
+      margin: 0 0 1rem 0;
+      color: var(--accent);
+    }
+    #result section { margin-bottom: 1.25rem; }
+    #result section:last-child { margin-bottom: 0; }
+    #result .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    #result ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+    #result li { margin-bottom: 0.25rem; }
+    #result .chip {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      background: rgba(124,58,237,0.25);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin: 0.2rem 0.2rem 0 0;
+    }
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Resume Optimizer</h1>
+    <p class="subtitle">Paste a job description or a job link to extract and analyze it.</p>
+
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="url">From URL</button>
+      <button type="button" class="tab" data-tab="text">Paste text</button>
+    </div>
+
+    <div id="panel-url" class="panel active">
+      <label for="jd-url">Job posting URL</label>
+      <input type="url" id="jd-url" placeholder="https://..." />
+      <button type="button" class="btn mt-1" id="btn-fetch">Fetch &amp; extract</button>
+    </div>
+
+    <div id="panel-text" class="panel">
+      <label for="jd-text">Job description text</label>
+      <textarea id="jd-text" placeholder="Paste the full job description here..."></textarea>
+      <button type="button" class="btn mt-1" id="btn-analyze">Analyze</button>
+    </div>
+
+    <div id="message" class="msg" style="display: none;"></div>
+    <div id="result" style="display: none;"></div>
+  </div>
+
+  <script>
+    const API = "";
+    const panelUrl = document.getElementById("panel-url");
+    const panelText = document.getElementById("panel-text");
+    const jdUrl = document.getElementById("jd-url");
+    const jdText = document.getElementById("jd-text");
+    const btnFetch = document.getElementById("btn-fetch");
+    const btnAnalyze = document.getElementById("btn-analyze");
+    const messageEl = document.getElementById("message");
+    const resultEl = document.getElementById("result");
+
+    function showMsg(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = "msg " + (type === "error" ? "error" : "success");
+      messageEl.style.display = "block";
+      resultEl.style.display = "none";
+    }
+    function hideMsg() {
+      messageEl.style.display = "none";
+    }
+    function showResult(html) {
+      resultEl.innerHTML = html;
+      resultEl.style.display = "block";
+      messageEl.style.display = "none";
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        const id = "panel-" + tab.dataset.tab;
+        document.getElementById(id).classList.add("active");
+      });
+    });
+
+    function renderAnalysis(data) {
+      const s = (label, items) => {
+        if (!items || items.length === 0) return "";
+        const list = items.map(i => `<li>${escapeHtml(i)}</li>`).join("");
+        return `<section><div class="label">${escapeHtml(label)}</div><ul>${list}</ul></section>`;
+      };
+      const chips = (label, items) => {
+        if (!items || items.length === 0) return "";
+        const c = items.map(i => `<span class="chip">${escapeHtml(i)}</span>`).join("");
+        return `<section><div class="label">${escapeHtml(label)}</div>${c}</section>`;
+      };
+      let html = `<h2>${escapeHtml(data.role_title || "Role")}</h2>`;
+      if (data.seniority_level || data.location || data.employment_type) {
+        html += `<section><div class="label">Details</div><p>${[data.seniority_level, data.location, data.employment_type].filter(Boolean).map(escapeHtml).join(" · ")}</p></section>`;
+      }
+      html += s("Required skills", data.required_skills);
+      html += s("Preferred skills", data.preferred_skills);
+      html += s("Responsibilities", data.primary_responsibilities);
+      html += chips("Technical keywords", data.keywords_technical);
+      html += chips("Tools", data.keywords_tools);
+      html += chips("Domains", data.keywords_domains);
+      html += chips("Methodologies", data.keywords_methodologies);
+      html += chips("Certifications", data.keywords_certifications);
+      return html;
+    }
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    btnFetch.addEventListener("click", async () => {
+      const url = jdUrl.value.trim();
+      if (!url) {
+        showMsg("Please enter a job posting URL.", "error");
+        return;
+      }
+      btnFetch.disabled = true;
+      btnFetch.innerHTML = '<span class="spinner"></span>Fetching...';
+      hideMsg();
+      try {
+        const res = await fetch(API + "/api/jd/from-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showMsg(data.detail || "Failed to fetch job description.", "error");
+          return;
+        }
+        jdText.value = data.text || "";
+        showMsg("Fetched: " + (data.title || "No title") + ". You can switch to \"Paste text\" and click Analyze.", "success");
+        resultEl.style.display = "none";
+      } catch (e) {
+        showMsg("Network error: " + e.message, "error");
+      } finally {
+        btnFetch.disabled = false;
+        btnFetch.textContent = "Fetch & extract";
+      }
+    });
+
+    btnAnalyze.addEventListener("click", async () => {
+      const text = jdText.value.trim();
+      if (!text) {
+        showMsg("Please paste a job description.", "error");
+        return;
+      }
+      btnAnalyze.disabled = true;
+      btnAnalyze.innerHTML = '<span class="spinner"></span>Analyzing...';
+      hideMsg();
+      try {
+        const res = await fetch(API + "/api/jd/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showMsg(data.detail || "Analysis failed.", "error");
+          return;
+        }
+        showResult(renderAnalysis(data));
+      } catch (e) {
+        showMsg("Network error: " + e.message, "error");
+      } finally {
+        btnAnalyze.disabled = false;
+        btnAnalyze.textContent = "Analyze";
+      }
+    });
+  </script>
+</body>
+</html>
