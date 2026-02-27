@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ resume.name }} - Resume</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.5cm;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 18pt;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h2.section-title {
+      font-size: 11pt;
+      margin-top: 14px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .contact {
+      font-size: 9.5pt;
+      margin-top: 2px;
+    }
+
+    .contact span {
+      margin-right: 8px;
+    }
+
+    .section {
+      margin-top: 8px;
+    }
+
+    .two-col {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .item-header {
+      font-weight: 600;
+    }
+
+    .sub-header {
+      font-style: italic;
+      font-size: 9.5pt;
+    }
+
+    ul {
+      margin: 2px 0 0 16px;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 2px;
+    }
+
+    .pill-list {
+      margin-top: 2px;
+    }
+
+    .pill-list span {
+      display: inline-block;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      padding: 1px 6px;
+      margin: 1px 4px 1px 0;
+      font-size: 9pt;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>{{ resume.name }}</h1>
+    <div class="contact">
+      <span>{{ resume.contact.phone }}</span>
+      <span>{{ resume.contact.email }}</span>
+      <span>{{ resume.contact.linkedin }}</span>
+      <span>{{ resume.contact.location }}</span>
+    </div>
+  </header>
+
+  <!-- Education -->
+  <section class="section">
+    <h2 class="section-title">Education</h2>
+    {% for edu in resume.education %}
+      <div class="two-col">
+        <div class="item-header">{{ edu.institution }}</div>
+        <div class="sub-header">{{ edu.location }}</div>
+      </div>
+      <div class="two-col" style="margin-top: 1px;">
+        <div>{{ edu.degree }}{% if edu.gpa %}, GPA {{ edu.gpa }}{% endif %}</div>
+        <div class="sub-header">{{ edu.dates }}</div>
+      </div>
+      {% if edu.coursework %}
+        <div style="margin-top: 2px; font-size: 9.5pt;">
+          <strong>Coursework:</strong>
+          {{ edu.coursework | join(', ') }}.
+        </div>
+      {% endif %}
+    {% endfor %}
+  </section>
+
+  <!-- Skills -->
+  <section class="section">
+    <h2 class="section-title">Skills</h2>
+    <div>
+      <div><strong>Product &amp; Strategy:</strong></div>
+      <div class="pill-list">
+        {% for s in resume.skills.product_and_strategy %}
+          <span>{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div style="margin-top: 3px;">
+      <div><strong>Data &amp; Analytics:</strong></div>
+      <div class="pill-list">
+        {% for s in resume.skills.data_and_analytics %}
+          <span>{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div style="margin-top: 3px;">
+      <div><strong>Platforms &amp; Tools:</strong></div>
+      <div class="pill-list">
+        {% for s in resume.skills.platforms_and_tools %}
+          <span>{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section class="section">
+    <h2 class="section-title">Professional Experience</h2>
+    {% for exp in resume.experience %}
+      <div class="two-col">
+        <div class="item-header">{{ exp.company }}, {{ exp.role }}</div>
+        <div class="sub-header">{{ exp.location }}</div>
+      </div>
+      <div class="two-col" style="margin-top: 1px;">
+        <div></div>
+        <div class="sub-header">{{ exp.dates }}</div>
+      </div>
+      <ul>
+        {% for bullet in exp.bullets %}
+          <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </section>
+
+  <!-- Projects -->
+  <section class="section">
+    <h2 class="section-title">Projects</h2>
+    {% for proj in resume.projects %}
+      <div class="item-header">
+        {{ proj.name }}
+        {% if proj.stack %}
+          — <span class="sub-header">{{ proj.stack }}</span>
+        {% endif %}
+      </div>
+      <ul>
+        {% for bullet in proj.bullets %}
+          <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </section>
+
+  <!-- Awards & Leadership -->
+  <section class="section">
+    <h2 class="section-title">Awards &amp; Leadership</h2>
+    <ul>
+      {% for item in resume.awards_and_leadership %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+</body>
+</html>
+

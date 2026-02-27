@@ -1,0 +1,7 @@
+jinja2
+weasyprint
+pytest
+requests
+beautifulsoup4
+openai
+python-dotenv

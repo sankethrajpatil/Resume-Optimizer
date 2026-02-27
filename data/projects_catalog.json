@@ -1,0 +1,268 @@
+[
+  {
+    "id": "siemens_nvidia_smr_industrial_ai",
+    "title": "Strategic Business Case: Siemens Energy & NVIDIA — Industrial AI Ecosystem for Advanced Nuclear (SMRs)",
+    "role": "Product Strategy / Market & Financial Modeling",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Product strategy",
+      "Market analysis",
+      "GTM strategy",
+      "Financial modeling",
+      "Ecosystem design",
+      "Data analysis"
+    ],
+    "bullets": [
+      "Solved a capital-intensive deployment challenge in advanced nuclear energy by designing an Industrial AI ecosystem combining Siemens Energy hardware with NVIDIA digital twin and AI simulation platforms, projecting 9–12% reduction in Levelized Cost of Energy (LCOE) and accelerated regulatory readiness for SMR deployment targeting AI data center demand.",
+      "Conducted end-to-end market analysis and competitive landscaping using Porter’s Five Forces and productivity frontier modeling to evaluate the global Industrial Metaverse opportunity, identifying market expansion from $34.4B (2024) to $181B (2030) at ~32% CAGR and positioning the partnership for dual cost-and-value advantage through AI-driven simulation.",
+      "Built techno-economic and lifecycle financial models estimating 13% CAPEX reduction, 10% OPEX savings, and 7% production output improvement enabled by digital twins, predictive maintenance, and AI-optimized plant operations across SMR asset lifecycles.",
+      "Led user research and customer segmentation for hyperscale data centers and industrial energy buyers, analyzing a validated 14 GW early-stage SMR demand pipeline and identifying regulatory approval timelines and prototyping costs as primary adoption friction points.",
+      "Designed a platform-led go-to-market (GTM) strategy positioning Siemens as the standardized infrastructure layer within a multi-sided ecosystem, enabling a data network effect where increased deployments improve AI simulation accuracy and reduce certification timelines.",
+      "Developed an Asset Information Management (AIM) lifecycle roadmap spanning as-required → as-designed → as-built → as-operated → as-maintained, ensuring digital continuity and long-term operational intelligence across nuclear infrastructure products."
+    ],
+    "tags": [
+      "energy",
+      "industrial AI",
+      "digital twins",
+      "nuclear",
+      "ecosystem",
+      "GTM",
+      "financial modeling"
+    ]
+  },
+  {
+    "id": "jj_budget_agentic_ai",
+    "title": "Graduate Data Science Researcher — Agentic AI for Budget Analytics (Johnson & Johnson)",
+    "role": "Graduate Data Science Researcher",
+    "location": "The Data Mine, Purdue University, West Lafayette, IN",
+    "dates": "August 2024 – April 2025",
+    "stack": [
+      "Agentic AI",
+      "Data analytics",
+      "Budget analytics"
+    ],
+    "bullets": [
+      "Collaborated with Johnson & Johnson to integrate agentic AI into budget analytics workflows.",
+      "Built agentic AI to enable real-time analytics, improving response time by 40%.",
+      "Designed an AI-driven query system to flag thresholds and detect anomalies, improving detection by 25%."
+    ],
+    "tags": [
+      "agentic AI",
+      "analytics",
+      "enterprise",
+      "finance"
+    ]
+  },
+  {
+    "id": "persona_targeted_content_optimization",
+    "title": "AI-Driven Persona Targeted Website Content Optimization",
+    "role": "Product & Data Project",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Python",
+      "NLP frameworks",
+      "AI content generation",
+      "SEO analytics",
+      "A/B testing"
+    ],
+    "bullets": [
+      "Solved low engagement scores from a generic OTT website and UX by approximately 25%.",
+      "Built evaluation pipelines to measure personalization fit and SEO performance.",
+      "Applied AI-driven segmentation for content, advertisers, and content owners, reducing manual creation time by around 50%."
+    ],
+    "tags": [
+      "personalization",
+      "SEO",
+      "NLP",
+      "A/B testing",
+      "OTT"
+    ]
+  },
+  {
+    "id": "mongodb_rag_assistant",
+    "title": "RAG AI Assistant for MongoDB",
+    "role": "AI Engineer / Developer",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Python",
+      "MongoDB Atlas",
+      "LangChain",
+      "OpenAI GPT-4",
+      "Streamlit",
+      "FastAPI"
+    ],
+    "bullets": [
+      "Solved LLM hallucinations and inaccurate domain responses by building a RAG AI assistant with multi-format document ingestion, sub-second retrieval, and full source attribution, increasing answer accuracy by approximately 95%.",
+      "Developed a modular pipeline (PDF, DOCX, TXT, MD, HTML → chunking → embeddings → vector search → GPT-4 responses) for scalable, real-time query handling in MongoDB."
+    ],
+    "tags": [
+      "RAG",
+      "LLM",
+      "MongoDB",
+      "LangChain",
+      "OpenAI",
+      "search"
+    ]
+  },
+  {
+    "id": "discovery_growth_video_platforms",
+    "title": "Discovery Growth for Video Platforms",
+    "role": "Product Analytics Project",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Python",
+      "SQL",
+      "Product analytics",
+      "Experimentation",
+      "Behavioral data analysis"
+    ],
+    "bullets": [
+      "Identified discovery blind spots that misattributed non-engagement to content quality, enabling feed optimizations that improved engagement by approximately 12%.",
+      "Built discovery friction intelligence to separate relevance and context failures for UX."
+    ],
+    "tags": [
+      "video",
+      "recommender systems",
+      "product analytics",
+      "experimentation"
+    ]
+  },
+  {
+    "id": "intellekt_ai_for_sap",
+    "title": "Intellekt AI for SAP",
+    "role": "SAP Consultant",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "SAP BTP",
+      "Cloud integration",
+      "Automation",
+      "APIs"
+    ],
+    "bullets": [
+      "As an SAP consultant to Intellekt AI, advised on product selection and workflow design and integrated SAP BTP Cloud Platform for AI in payroll and vendor management.",
+      "Designed automation workflows using wrapper APIs to address more than $2B in annual billing errors.",
+      "Reduced billing-related disputes by 30–40% before escalation, improving cash flows."
+    ],
+    "tags": [
+      "SAP",
+      "automation",
+      "fintech",
+      "enterprise"
+    ]
+  },
+  {
+    "id": "supply_chain_risk_monitoring",
+    "title": "Supply Chain Risk Monitoring",
+    "role": "Product Lead",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Predictive modeling",
+      "Data lakehouse architecture",
+      "Roadmapping"
+    ],
+    "bullets": [
+      "Led the product roadmap using predictive modeling and data lakehouse architecture to track supplier risks.",
+      "Defined product roadmap using the MoSCoW framework, aligning customer pain points and business goals."
+    ],
+    "tags": [
+      "supply chain",
+      "risk",
+      "predictive modeling",
+      "product management"
+    ]
+  },
+  {
+    "id": "streaming_subscription_optimizer",
+    "title": "Streaming Subscription Optimizer",
+    "role": "Product & Pricing Project",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Pricing analysis",
+      "Expected Value of Customer (EVC)",
+      "Experiment design"
+    ],
+    "bullets": [
+      "Designed a subscription bundling system for students to optimize streaming service costs using economic value of customer (EVC) and A/B-tested pricing models.",
+      "Achieved approximately 18% higher value perception and stronger conversion intent among users through the bundling business model."
+    ],
+    "tags": [
+      "subscription",
+      "pricing",
+      "bundling",
+      "A/B testing"
+    ]
+  },
+  {
+    "id": "illume_trend_capture_marketing",
+    "title": "Illume - AI Trend Capture Marketing Platform",
+    "role": "Product Founder / Strategist",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "AI marketing",
+      "JTBD interviews",
+      "Product discovery"
+    ],
+    "bullets": [
+      "Designed a plug-and-play ad placement system in viral and trending videos to reduce 95% of manual effort in marketing.",
+      "Interviewed marketers to define 15+ jobs-to-be-done (JTBDs), finding that 95% focused on brand recall and ad fatigue from traditional ads.",
+      "Identified unmet need for pre-peak trend activation; no direct competitors offer dynamic micro-ad overlays on viral content."
+    ],
+    "tags": [
+      "marketing",
+      "AI",
+      "growth",
+      "JTBD"
+    ]
+  },
+  {
+    "id": "airbnb_market_analytics",
+    "title": "Airbnb Market Analytics Project",
+    "role": "Data Analytics Project",
+    "location": null,
+    "dates": null,
+    "stack": [
+      "Data analysis",
+      "Pricing analytics"
+    ],
+    "bullets": [
+      "Analyzed 10K+ bookings to uncover traction drivers across customer and host segments, boosting visibility by approximately 25%.",
+      "Modeled ranking and pricing shifts projected to increase occupancy by 12%, balancing supply and demand across seasonal peaks."
+    ],
+    "tags": [
+      "Airbnb",
+      "marketplace",
+      "pricing",
+      "analytics"
+    ]
+  },
+  {
+    "id": "post_covid_recovery_analysis",
+    "title": "Post-COVID Recovery Analysis — Research Collaboration",
+    "role": "Research Collaborator",
+    "location": null,
+    "dates": "March 2021 – May 2021",
+    "stack": [
+      "Statistical analysis",
+      "Chi-Square tests",
+      "Kaplan-Meier methods"
+    ],
+    "bullets": [
+      "Analyzed 350+ patient records to compare recovery between COVID and non-COVID groups with and without smoking habits.",
+      "Identified a 2.1x higher likelihood of post-COVID decline in smokers using Chi-Square and Kaplan-Meier methods."
+    ],
+    "tags": [
+      "healthcare",
+      "statistics",
+      "research"
+    ]
+  }
+]
+

@@ -1,0 +1,126 @@
+{
+  "name": "Sanketh Rajshekhar Patil",
+  "contact": {
+    "phone": "(765)-543-9608",
+    "email": "patil232@purdue.edu",
+    "location": "West Lafayette, IN",
+    "linkedin": "www.linkedin.com/in/sanketh-raj-patil/"
+  },
+  "education": [
+    {
+      "institution": "Purdue University, Daniels School of Business",
+      "degree": "Master of Business and Technology (Tech MBA) – AI",
+      "gpa": "3.6/4",
+      "location": "West Lafayette, IN",
+      "dates": "August 2025 – May 2026",
+      "coursework": [
+        "Business Intelligence",
+        "Digital Product Design",
+        "Machine Learning",
+        "Technology Strategy"
+      ]
+    },
+    {
+      "institution": "University of Visvesvaraya College of Engineering",
+      "degree": "Mechanical Engineering",
+      "gpa": "3.8/4",
+      "location": "Bangalore, India",
+      "dates": "June 2022"
+    }
+  ],
+  "skills": {
+    "product_and_strategy": [
+      "Business case modelling",
+      "Go-to-market (GTM)",
+      "KPI design",
+      "Roadmaps",
+      "Product requirement documents (PRDs)",
+      "OKRs",
+      "Market research",
+      "User research"
+    ],
+    "data_and_analytics": [
+      "Python",
+      "SQL",
+      "Statistics",
+      "Data modeling",
+      "ML/AI fundamentals",
+      "APIs",
+      "LLM-enabled workflows"
+    ],
+    "platforms_and_tools": [
+      "JIRA",
+      "Confluence",
+      "Power BI",
+      "Figma",
+      "Automation frameworks",
+      "Cloud (SAP BTP)",
+      "Cloud (AWS)"
+    ]
+  },
+  "experience": [
+    {
+      "company": "The Data Mine, Purdue University",
+      "role": "Graduate Data Science Researcher — J&J",
+      "location": "West Lafayette, IN",
+      "dates": "January 2026 – May 2026",
+      "bullets": [
+        "Collaborated with Johnson & Johnson to integrate retrieval-augmented generation (RAG) models and build an agentic AI for their budget dashboard.",
+        "Enabled real-time analytics and flagged anomalies for payment thresholds, improving response time by 40%.",
+        "Prioritized invoice status and amount and combined this with sector mapping to improve anomaly detection by 25%."
+      ]
+    },
+    {
+      "company": "SAP",
+      "role": "Product Quality",
+      "location": "Bangalore, India",
+      "dates": "July 2022 – July 2025",
+      "bullets": [
+        "Led 0→1 launch of Ariba Insights for Quality, an enterprise product for buyers to benchmark supplier performance.",
+        "Designed AI-assisted workflows to surface performance signals, accelerating decision-making cycles by approximately 30%.",
+        "Automated manual analysis of open tickets with AI-assisted workflows, easing identification of bugs.",
+        "Built usage metering, cost dashboards, and health signals to track issues identified from log files in cloud and APIs.",
+        "Simplified user stories and documentation across US, EU, and APAC teams, reducing onboarding time by around three weeks.",
+        "Drove executive communication and stakeholder alignment to communicate product deliverables and demos."
+      ]
+    },
+    {
+      "company": "SAP",
+      "role": "Developer Intern",
+      "location": "Bangalore, India",
+      "dates": "January 2022 – July 2022",
+      "bullets": [
+        "Managed stakeholders to implement custom messages for SAP Business ByDesign using ABAP, enhancing user clarity by up to 10%."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "AI-Driven Persona Targeted Website Content Optimization",
+      "stack": "Python, NLP frameworks, SEO analytics, A/B testing",
+      "bullets": [
+        "Built a product strategy to solve low engagement scores from websites and UX, improving engagement by approximately 25% with defined KPIs.",
+        "Applied AI-driven segmentation for content, advertisers, and content owners, reducing manual creation time by 50%."
+      ]
+    },
+    {
+      "name": "Discovery Growth for Video Platforms",
+      "bullets": [
+        "Performed audience analysis to identify discovery gaps for engagement; recommendations improved interaction by approximately 12%."
+      ]
+    },
+    {
+      "name": "Streaming Subscription Optimizer",
+      "bullets": [
+        "Conducted market and pricing analysis for bundling and built an ROI model that improved conversion intent by approximately 18%.",
+        "Developed go-to-market (GTM) and landscape analysis using economic value to customer (EVC) and controlled testing inputs to inform prioritization decisions."
+      ]
+    }
+  ],
+  "awards_and_leadership": [
+    "Top 10 Finalist for 37th Burton Morgan Venture Concept Competition for Illume.",
+    "Director of Creative Strategy for the Business and Technology Student Association, Purdue University.",
+    "Core team member at Product Management Club, Purdue University."
+  ]
+}
+
