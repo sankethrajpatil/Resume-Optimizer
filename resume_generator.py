@@ -11,17 +11,57 @@ import generate_resume
 BASE_DIR = Path(__file__).parent
 DATA_PATH = BASE_DIR / "data" / "base_resume.json"
 
+# Heuristic caps to help keep the PDF to a single page.
+MAX_EXPERIENCE_BULLETS = 5
+MAX_PROJECT_BULLETS = 3
+MAX_PROJECTS = 4
+MAX_AWARDS_ITEMS = 4
+
 
 def _load_base_resume() -> dict:
   with DATA_PATH.open(encoding="utf-8") as f:
     return json.load(f)
 
 
+def _apply_length_rules(resume: dict) -> dict:
+  """Apply simple caps so the PDF is unlikely to spill onto a second page.
+
+  These rules are intentionally conservative and only trim from the bottom:
+  - Limit bullets per experience entry.
+  - Limit number of projects and bullets per project.
+  - Limit number of awards/leadership items.
+  """
+  trimmed = json.loads(json.dumps(resume))  # cheap deep copy without importing copy again
+
+  # Cap experience bullets
+  for exp in trimmed.get("experience", []):
+    bullets = exp.get("bullets")
+    if isinstance(bullets, list) and len(bullets) > MAX_EXPERIENCE_BULLETS:
+      exp["bullets"] = bullets[:MAX_EXPERIENCE_BULLETS]
+
+  # Cap number of projects and bullets per project
+  projects = trimmed.get("projects")
+  if isinstance(projects, list):
+    projects = projects[:MAX_PROJECTS]
+    for proj in projects:
+      bullets = proj.get("bullets")
+      if isinstance(bullets, list) and len(bullets) > MAX_PROJECT_BULLETS:
+        proj["bullets"] = bullets[:MAX_PROJECT_BULLETS]
+    trimmed["projects"] = projects
+
+  # Cap awards / leadership items
+  awards = trimmed.get("awards_and_leadership")
+  if isinstance(awards, list) and len(awards) > MAX_AWARDS_ITEMS:
+    trimmed["awards_and_leadership"] = awards[:MAX_AWARDS_ITEMS]
+
+  return trimmed
+
+
 def build_resume_from_screening(screening_result: Dict[str, Any] | None) -> dict:
   """Build resume dict: base resume with projects replaced by screening selected_projects if provided."""
   resume = _load_base_resume()
   if not screening_result or not screening_result.get("selected_projects"):
-    return resume
+    return _apply_length_rules(resume)
 
   selected: List[Dict[str, Any]] = screening_result["selected_projects"]
   projects = []
@@ -33,7 +73,7 @@ def build_resume_from_screening(screening_result: Dict[str, Any] | None) -> dict
     projects.append({"name": title, "stack": None, "bullets": [str(b).strip() for b in bullets if str(b).strip()]})
   resume = copy.deepcopy(resume)
   resume["projects"] = projects
-  return resume
+  return _apply_length_rules(resume)
 
 
 def generate_resume_html(screening_result: Dict[str, Any] | None = None, for_pdf: bool = False) -> str:

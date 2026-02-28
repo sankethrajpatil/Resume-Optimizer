@@ -221,7 +221,8 @@
 
     <div id="resume-section" style="margin-top: 2rem;">
       <h2 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Generate &amp; download resume</h2>
-      <p class="subtitle" style="margin-bottom: 0.5rem;">Generate your resume (base version or tailored to the last screening). Then download as PDF.</p>
+      <p class="subtitle" style="margin-bottom: 0.5rem;">Generate your resume (base version or tailored to the last analyzed JD). Then download as PDF.</p>
+      <p id="resume-tailored-note" class="subtitle" style="margin-bottom: 0.5rem; display: none; color: var(--success);">Resume will be tailored to the job description you analyzed above.</p>
       <div class="btn-row">
         <button type="button" class="btn" id="btn-generate">Generate resume</button>
         <button type="button" class="btn" id="btn-download">Download PDF</button>
@@ -250,6 +251,11 @@
     const resumePreview = document.getElementById("resume-preview");
 
     let lastScreeningResult = null;
+
+    function updateResumeTailoredNote() {
+      const el = document.getElementById("resume-tailored-note");
+      if (el) el.style.display = lastScreeningResult ? "block" : "none";
+    }
 
     function showMsg(text, type) {
       messageEl.textContent = text;
@@ -359,6 +365,20 @@
           return;
         }
         showResult(renderAnalysis(data));
+
+        // Use this JD for resume generation: run screening so Generate/Download use tailored projects.
+        try {
+          const screenRes = await fetch(API + "/api/resume/screen", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const screenData = await screenRes.json().catch(() => ({}));
+          if (screenRes.ok && screenData) {
+            lastScreeningResult = screenData;
+            updateResumeTailoredNote();
+          }
+        } catch (_) { /* non-blocking */ }
       } catch (e) {
         showMsg("Network error: " + e.message, "error");
       } finally {
@@ -421,6 +441,7 @@
         screenResultEl.innerHTML = html || "<p>No results.</p>";
         screenResultEl.style.display = "block";
         lastScreeningResult = data;
+        updateResumeTailoredNote();
       } catch (e) {
         showMsg("Network error: " + e.message, "error");
       } finally {

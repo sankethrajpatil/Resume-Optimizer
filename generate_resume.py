@@ -11,6 +11,34 @@ DATA_PATH = BASE_DIR / "data" / "base_resume.json"
 TEMPLATES_DIR = BASE_DIR / "templates"
 OUTPUT_DIR = BASE_DIR / "output"
 
+# Rule: Every bullet/line on the resume must be ≤ this many characters (incl. spaces and bullet spacing).
+# When truncating, the result must be a complete sentence (cut at sentence end, then clause, then word).
+BULLET_MAX_CHARS = 120
+
+
+def truncate_to_chars(s: str, max_chars: int = BULLET_MAX_CHARS) -> str:
+  """Truncate to at most max_chars, keeping a complete sentence. Prefer last . ! ? then , then space."""
+  if not s or len(s) <= max_chars:
+    return s
+  segment = s[: max_chars + 1]
+  # Prefer last sentence end before limit so the line stays complete
+  last_sent_end = -1
+  for sep in ".!?":
+    idx = segment.rfind(sep)
+    if idx > 0 and idx > last_sent_end:
+      last_sent_end = idx
+  if last_sent_end > 0:
+    return segment[: last_sent_end + 1].strip()
+  # Then clause boundary
+  idx = segment.rfind(",")
+  if idx > 0:
+    return segment[: idx + 1].strip()
+  # Then word boundary
+  last_space = segment.rfind(" ")
+  if last_space > 0:
+    return segment[:last_space].rstrip()
+  return segment[:max_chars].rstrip()
+
 
 def load_resume() -> dict:
   """Load base resume data from JSON."""
@@ -26,6 +54,7 @@ def render_resume_html(resume: dict, for_pdf: bool = False) -> str:
     trim_blocks=True,
     lstrip_blocks=True,
   )
+  env.filters["truncate_bullet"] = lambda s: truncate_to_chars(s or "", BULLET_MAX_CHARS)
   template_name = "resume_pdf.html" if for_pdf else "resume.html"
   template = env.get_template(template_name)
   return template.render(resume=resume)

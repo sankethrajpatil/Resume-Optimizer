@@ -13,7 +13,7 @@ PROJECTS_CATALOG_PATH = BASE_DIR / "data" / "projects_catalog.json"
 SCREENING_SYSTEM = (
   "You are a hiring manager screening resumes. "
   "You select which projects best match the role, explain why, suggest removals, identify gaps, "
-  "and rewrite resume bullets tailored to the JD. "
+  "and tailor project bullets by replacing only keywords with terms from the JD while keeping metrics and accomplishments. "
   "Respond with a single JSON object ONLY, no extra commentary. "
   "Think: if you saw this resume, would you interview the person?"
 )
@@ -28,10 +28,17 @@ Your task:
 - Explain WHY each one fits using the employer's needs.
 - Suggest which projects should be removed.
 - Identify missing signals or gaps.
-- For each selected project, rewrite exactly 2 resume bullets tailored to the JD. Use impact, metrics, and ownership. Make the fit obvious in under 5 seconds. Keep each bullet to one line (do not overflow to the next line).
+- For each selected project, produce exactly 2 resume bullets. Do NOT rewrite the whole bullet. Only replace keywords/phrases with equivalent terms from the job description. Keep the original accomplishment, structure, and especially the METRICS (numbers, percentages, time saved, etc.). Metrics are compulsory in every bullet—if the original has none, add one plausible metric that fits the accomplishment.
+
+Rules for every bullet you write:
+- Each bullet must include at least one metric (%, number, or concrete outcome). Metrics are mandatory.
+- Only swap in JD keywords/terminology; preserve the original meaning and accomplishment.
+- Each bullet must be ONE complete sentence (do not cut mid-sentence).
+- Hard limit: each bullet must be ≤ 120 characters including spaces. Count characters and stay under 120.
+- One line only; no overflow to the next line. Concise, high-impact phrasing.
 
 Return a JSON object with:
-- selected_projects: array of objects, each with: project_id, project_title, why_it_fits (string), rewritten_bullets (array of exactly 2 strings, each one line)
+- selected_projects: array of objects, each with: project_id, project_title, why_it_fits (string), rewritten_bullets (array of exactly 2 strings, each with metrics, keywords aligned to JD, ≤120 characters)
 - remove_projects: array of objects with project_id, project_title, reason (string)
 - gaps: array of strings (missing signals or gaps)
 - interview_verdict: string (one short sentence: would you interview this person and why/why not)
