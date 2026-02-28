@@ -18,15 +18,16 @@ def load_resume() -> dict:
     return json.load(f)
 
 
-def render_resume_html(resume: dict) -> str:
-  """Render resume HTML from template and data."""
+def render_resume_html(resume: dict, for_pdf: bool = False) -> str:
+  """Render resume HTML. Use for_pdf=True to get PDF-safe layout (tables, no flexbox)."""
   env = Environment(
     loader=FileSystemLoader(str(TEMPLATES_DIR)),
     autoescape=select_autoescape(["html", "xml"]),
     trim_blocks=True,
     lstrip_blocks=True,
   )
-  template = env.get_template("resume.html")
+  template_name = "resume_pdf.html" if for_pdf else "resume.html"
+  template = env.get_template(template_name)
   return template.render(resume=resume)
 
 

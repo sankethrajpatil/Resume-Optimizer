@@ -144,6 +144,35 @@
       font-size: 0.85rem;
       margin: 0.2rem 0.2rem 0 0;
     }
+    .chip.critical { background: rgba(248,113,113,0.2); }
+    .chip.important { background: rgba(251,191,36,0.2); }
+    .chip.nice { background: rgba(124,58,237,0.25); }
+    #screen-result { margin-top: 1.5rem; }
+    #screen-result .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    #screen-result .project-card h3 { font-size: 1rem; margin: 0 0 0.5rem 0; color: var(--accent); }
+    #screen-result .why { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.75rem; }
+    #screen-result .verdict { padding: 1rem; background: rgba(74,222,128,0.1); border-radius: 8px; margin-bottom: 1rem; }
+    #resume-section { margin-top: 2rem; }
+    #resume-section .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    #resume-preview-wrap {
+      margin-top: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      max-height: 70vh;
+    }
+    #resume-preview-wrap iframe {
+      width: 100%;
+      height: 70vh;
+      border: none;
+    }
     .spinner {
       display: inline-block;
       width: 1rem;
@@ -182,6 +211,25 @@
 
     <div id="message" class="msg" style="display: none;"></div>
     <div id="result" style="display: none;"></div>
+
+    <div id="screen-section" style="margin-top: 2rem;">
+      <h2 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Screen my resume</h2>
+      <p class="subtitle" style="margin-bottom: 0.75rem;">Match your projects to this JD and get tailored bullets. Use the JD in the textarea above.</p>
+      <button type="button" class="btn" id="btn-screen">Screen my resume</button>
+      <div id="screen-result" style="display: none;"></div>
+    </div>
+
+    <div id="resume-section" style="margin-top: 2rem;">
+      <h2 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Generate &amp; download resume</h2>
+      <p class="subtitle" style="margin-bottom: 0.5rem;">Generate your resume (base version or tailored to the last screening). Then download as PDF.</p>
+      <div class="btn-row">
+        <button type="button" class="btn" id="btn-generate">Generate resume</button>
+        <button type="button" class="btn" id="btn-download">Download PDF</button>
+      </div>
+      <div id="resume-preview-wrap" style="display: none;">
+        <iframe id="resume-preview" title="Resume preview"></iframe>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -194,6 +242,14 @@
     const btnAnalyze = document.getElementById("btn-analyze");
     const messageEl = document.getElementById("message");
     const resultEl = document.getElementById("result");
+    const btnScreen = document.getElementById("btn-screen");
+    const screenResultEl = document.getElementById("screen-result");
+    const btnGenerate = document.getElementById("btn-generate");
+    const btnDownload = document.getElementById("btn-download");
+    const resumePreviewWrap = document.getElementById("resume-preview-wrap");
+    const resumePreview = document.getElementById("resume-preview");
+
+    let lastScreeningResult = null;
 
     function showMsg(text, type) {
       messageEl.textContent = text;
@@ -226,23 +282,23 @@
         const list = items.map(i => `<li>${escapeHtml(i)}</li>`).join("");
         return `<section><div class="label">${escapeHtml(label)}</div><ul>${list}</ul></section>`;
       };
-      const chips = (label, items) => {
+      const chips = (label, items, cls) => {
         if (!items || items.length === 0) return "";
-        const c = items.map(i => `<span class="chip">${escapeHtml(i)}</span>`).join("");
+        const c = items.map(i => `<span class="chip ${cls || ''}">${escapeHtml(i)}</span>`).join("");
         return `<section><div class="label">${escapeHtml(label)}</div>${c}</section>`;
       };
-      let html = `<h2>${escapeHtml(data.role_title || "Role")}</h2>`;
-      if (data.seniority_level || data.location || data.employment_type) {
-        html += `<section><div class="label">Details</div><p>${[data.seniority_level, data.location, data.employment_type].filter(Boolean).map(escapeHtml).join(" · ")}</p></section>`;
-      }
-      html += s("Required skills", data.required_skills);
-      html += s("Preferred skills", data.preferred_skills);
-      html += s("Responsibilities", data.primary_responsibilities);
-      html += chips("Technical keywords", data.keywords_technical);
-      html += chips("Tools", data.keywords_tools);
-      html += chips("Domains", data.keywords_domains);
-      html += chips("Methodologies", data.keywords_methodologies);
-      html += chips("Certifications", data.keywords_certifications);
+      let html = "<h2>JD Analysis</h2>";
+      html += s("Top skills (hard skills / tools / methods)", data.top_skills);
+      html += s("Core competencies (behaviors, ways of working)", data.core_competencies);
+      html += s("Primary problems the team is trying to solve", data.primary_problems);
+      html += s("Metrics or outcomes they care about", data.metrics_outcomes);
+      html += s("Seniority signals (ownership, autonomy, scope)", data.seniority_signals);
+      html += s("Hidden ATS keywords", data.hidden_ats_keywords);
+      html += s("What a perfect candidate probably did in past roles", data.perfect_candidate_signals);
+      const kr = data.keyword_rankings || {};
+      html += chips("Critical", kr.critical, "critical");
+      html += chips("Important", kr.important, "important");
+      html += chips("Nice-to-have", kr.nice_to_have, "nice");
       return html;
     }
     function escapeHtml(str) {
@@ -308,6 +364,152 @@
       } finally {
         btnAnalyze.disabled = false;
         btnAnalyze.textContent = "Analyze";
+      }
+    });
+
+    btnScreen.addEventListener("click", async () => {
+      const text = jdText.value.trim();
+      if (!text) {
+        showMsg("Paste a job description above first, then click Screen my resume.", "error");
+        return;
+      }
+      btnScreen.disabled = true;
+      btnScreen.innerHTML = '<span class="spinner"></span>Screening...';
+      screenResultEl.style.display = "none";
+      try {
+        const res = await fetch(API + "/api/resume/screen", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showMsg(data.detail || "Screening failed.", "error");
+          return;
+        }
+        hideMsg();
+        let html = "";
+        if (data.interview_verdict) {
+          html += `<div class="verdict"><strong>Verdict:</strong> ${escapeHtml(data.interview_verdict)}</div>`;
+        }
+        if (data.selected_projects && data.selected_projects.length) {
+          html += "<h3 style=\"font-size:1rem; margin-bottom:0.5rem;\">Selected projects & tailored bullets</h3>";
+          data.selected_projects.forEach(p => {
+            html += `<div class="project-card">`;
+            html += `<h3>${escapeHtml(p.project_title || p.project_id || "")}</h3>`;
+            if (p.why_it_fits) html += `<div class="why"><strong>Why it fits:</strong> ${escapeHtml(p.why_it_fits)}</div>`;
+            if (p.rewritten_bullets && p.rewritten_bullets.length) {
+              html += "<ul style=\"margin:0; padding-left:1.25rem;\">";
+              p.rewritten_bullets.forEach(b => { html += `<li>${escapeHtml(b)}</li>`; });
+              html += "</ul>";
+            }
+            html += "</div>";
+          });
+        }
+        if (data.remove_projects && data.remove_projects.length) {
+          html += "<h3 style=\"font-size:1rem; margin:1rem 0 0.5rem 0;\">Suggest removing</h3><ul style=\"margin:0; padding-left:1.25rem;\">";
+          data.remove_projects.forEach(p => {
+            html += `<li><strong>${escapeHtml(p.project_title || p.project_id || "")}</strong>: ${escapeHtml(p.reason || "")}</li>`;
+          });
+          html += "</ul>";
+        }
+        if (data.gaps && data.gaps.length) {
+          html += "<h3 style=\"font-size:1rem; margin:1rem 0 0.5rem 0;\">Gaps / missing signals</h3><ul style=\"margin:0; padding-left:1.25rem;\">";
+          data.gaps.forEach(g => { html += `<li>${escapeHtml(g)}</li>`; });
+          html += "</ul>";
+        }
+        screenResultEl.innerHTML = html || "<p>No results.</p>";
+        screenResultEl.style.display = "block";
+        lastScreeningResult = data;
+      } catch (e) {
+        showMsg("Network error: " + e.message, "error");
+      } finally {
+        btnScreen.disabled = false;
+        btnScreen.textContent = "Screen my resume";
+      }
+    });
+
+    function getGeneratePayload() {
+      return { screening_result: lastScreeningResult || null };
+    }
+
+    btnGenerate.addEventListener("click", async () => {
+      btnGenerate.disabled = true;
+      btnGenerate.innerHTML = '<span class="spinner"></span>Generating...';
+      resumePreviewWrap.style.display = "none";
+      try {
+        const res = await fetch(API + "/api/resume/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(getGeneratePayload()),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showMsg(data.detail || "Generate failed.", "error");
+          return;
+        }
+        hideMsg();
+        resumePreview.srcdoc = data.html || "";
+        resumePreviewWrap.style.display = "block";
+        resumePreviewWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } catch (e) {
+        showMsg("Network error: " + e.message, "error");
+      } finally {
+        btnGenerate.disabled = false;
+        btnGenerate.textContent = "Generate resume";
+      }
+    });
+
+    btnDownload.addEventListener("click", async () => {
+      btnDownload.disabled = true;
+      btnDownload.innerHTML = '<span class="spinner"></span>Downloading...';
+      try {
+        const res = await fetch(API + "/api/resume/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(getGeneratePayload()),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          const detail = err.detail || "Download failed.";
+          const isPdfUnavailable = res.status === 503 || detail.toLowerCase().includes("pdf");
+          if (isPdfUnavailable) {
+            const genRes = await fetch(API + "/api/resume/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(getGeneratePayload()),
+            });
+            const genData = await genRes.json().catch(() => ({}));
+            if (genRes.ok && genData.html) {
+              const w = window.open("", "_blank");
+              if (w) {
+                w.document.write(genData.html);
+                w.document.close();
+                showMsg("PDF not available on server. A preview opened in a new tab — use Ctrl+P (or Cmd+P) then \"Save as PDF\".", "success");
+              } else {
+                showMsg(detail + " Pop-ups may be blocked. Allow pop-ups and try again, or use Generate resume then print the preview.", "error");
+              }
+            } else {
+              showMsg(detail, "error");
+            }
+          } else {
+            showMsg(detail, "error");
+          }
+          return;
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "resume.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+        showMsg("Resume downloaded as resume.pdf.", "success");
+      } catch (e) {
+        showMsg("Network error: " + e.message, "error");
+      } finally {
+        btnDownload.disabled = false;
+        btnDownload.textContent = "Download PDF";
       }
     });
   </script>

@@ -32,3 +32,11 @@ def test_jd_analyze_requires_body():
 def test_jd_analyze_rejects_empty_text():
   r = client.post("/api/jd/analyze", json={"text": "   "})
   assert r.status_code == 400
+
+
+def test_resume_generate_returns_html():
+  r = client.post("/api/resume/generate", json={"screening_result": None})
+  assert r.status_code == 200
+  data = r.json()
+  assert "html" in data
+  assert "Sanketh" in data["html"]

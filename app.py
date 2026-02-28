@@ -5,11 +5,14 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
 import jd_analyzer
 import jd_extractor
+import openai_client
+import resume_generator
+import resume_screener
 
 app = FastAPI(title="Resume Optimizer", version="0.1.0")
 
@@ -33,23 +36,6 @@ class JdFromUrlRequest(BaseModel):
 
 class JdAnalyzeRequest(BaseModel):
   text: str
-
-
-def _job_analysis_to_dict(a: jd_analyzer.JobAnalysis) -> dict:
-  return {
-    "role_title": a.role_title,
-    "seniority_level": a.seniority_level,
-    "location": a.location,
-    "employment_type": a.employment_type,
-    "required_skills": a.required_skills,
-    "preferred_skills": a.preferred_skills,
-    "primary_responsibilities": a.primary_responsibilities,
-    "keywords_technical": a.keywords_technical,
-    "keywords_tools": a.keywords_tools,
-    "keywords_domains": a.keywords_domains,
-    "keywords_methodologies": a.keywords_methodologies,
-    "keywords_certifications": a.keywords_certifications,
-  }
 
 
 # ----- API routes -----
@@ -76,9 +62,67 @@ def api_jd_analyze(body: JdAnalyzeRequest) -> dict:
     raise HTTPException(status_code=400, detail="Job description text is required.")
   try:
     analysis = jd_analyzer.analyze_job_description(text)
-    return _job_analysis_to_dict(analysis)
+    return jd_analyzer.job_analysis_to_dict(analysis)
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
+  except openai_client.OpenAIConfigError as e:
+    raise HTTPException(status_code=503, detail=str(e))
+  except Exception as e:
+    raise HTTPException(status_code=502, detail=f"Analysis failed: {str(e)}")
+
+
+class ResumeScreenRequest(BaseModel):
+  text: str
+
+
+@app.post("/api/resume/screen")
+def api_resume_screen(body: ResumeScreenRequest) -> dict:
+  """Screen resume projects against the JD; return selected projects, rewritten bullets, gaps."""
+  text = (body.text or "").strip()
+  if not text:
+    raise HTTPException(status_code=400, detail="Job description text is required.")
+  try:
+    return resume_screener.screen_resume(text)
+  except ValueError as e:
+    raise HTTPException(status_code=400, detail=str(e))
+  except openai_client.OpenAIConfigError as e:
+    raise HTTPException(status_code=503, detail=str(e))
+  except Exception as e:
+    raise HTTPException(status_code=502, detail=f"Screening failed: {str(e)}")
+
+
+class GenerateResumeRequest(BaseModel):
+  screening_result: dict | None = None
+
+
+@app.post("/api/resume/generate")
+def api_resume_generate(body: GenerateResumeRequest) -> dict:
+  """Generate resume HTML from base resume + optional screening result (tailored projects)."""
+  try:
+    html = resume_generator.generate_resume_html(body.screening_result)
+    return {"html": html}
+  except Exception as e:
+    raise HTTPException(status_code=502, detail=f"Generate failed: {str(e)}")
+
+
+@app.post("/api/resume/download")
+def api_resume_download(body: GenerateResumeRequest) -> Response:
+  """Generate resume PDF and return as file download. Uses PDF-optimized template (table layout, single page)."""
+  try:
+    html = resume_generator.generate_resume_html(body.screening_result, for_pdf=True)
+    pdf_bytes = resume_generator.generate_resume_pdf_bytes(html)
+  except Exception as e:
+    if "weasyprint" in str(e).lower() or "libgobject" in str(e).lower() or "load library" in str(e).lower():
+      raise HTTPException(
+        status_code=503,
+        detail="PDF generation is not available on this server. Use 'Generate resume' and print the preview to PDF.",
+      ) from e
+    raise HTTPException(status_code=502, detail=f"Download failed: {str(e)}") from e
+  return Response(
+    content=pdf_bytes,
+    media_type="application/pdf",
+    headers={"Content-Disposition": "attachment; filename=resume.pdf"},
+  )
 
 
 # ----- Frontend -----

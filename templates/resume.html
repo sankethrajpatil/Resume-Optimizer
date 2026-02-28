@@ -6,14 +6,22 @@
   <style>
     @page {
       size: A4;
-      margin: 1.5cm;
+      margin: 1.2cm;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 10.5pt;
-      line-height: 1.35;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 10pt;
+      line-height: 1.2;
       color: #111;
+      margin: 0;
+      padding: 0;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
     }
 
     h1, h2, h3 {
@@ -21,72 +29,78 @@
       padding: 0;
     }
 
-    h1 {
-      font-size: 18pt;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+    header {
+      text-align: center;
+      margin-bottom: 2px;
     }
 
-    h2.section-title {
-      font-size: 11pt;
-      margin-top: 14px;
-      margin-bottom: 4px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 2px;
+    h1 {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 16pt;
+      font-weight: 700;
+      letter-spacing: 0.02em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
     }
 
     .contact {
-      font-size: 9.5pt;
-      margin-top: 2px;
+      font-size: 10pt;
+      margin-top: 1px;
+      white-space: nowrap;
     }
 
-    .contact span {
-      margin-right: 8px;
+    .contact span.sep {
+      margin: 0 3px;
+      font-weight: normal;
+    }
+
+    h2.section-title {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 10pt;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 1px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
 
     .section {
-      margin-top: 8px;
+      margin-top: 4px;
     }
 
-    .two-col {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
+    table.twocol { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table.twocol td { vertical-align: top; font-size: 10pt; padding: 0 0 0 0; }
+    table.twocol td:first-child { width: 65%; padding-right: 3em; }
+    table.twocol td.right { width: 35%; text-align: right; font-style: italic; white-space: nowrap; padding-left: 2em; }
+    .muted { font-style: italic; font-size: 10pt; }
 
     .item-header {
       font-weight: 600;
+      font-size: 10pt;
     }
 
     .sub-header {
       font-style: italic;
-      font-size: 9.5pt;
+      font-size: 10pt;
     }
 
     ul {
-      margin: 2px 0 0 16px;
+      margin: 1px 0 0 14px;
       padding: 0;
     }
 
     li {
-      margin-bottom: 2px;
+      margin-bottom: 1px;
+      font-size: 10pt;
     }
 
-    .pill-list {
+    .skill-line {
+      font-size: 10pt;
       margin-top: 2px;
+      line-height: 1.2;
     }
 
-    .pill-list span {
-      display: inline-block;
-      background-color: #f0f0f0;
-      border-radius: 10px;
-      padding: 1px 6px;
-      margin: 1px 4px 1px 0;
-      font-size: 9pt;
-    }
+    .skill-line .vals { font-size: 10pt; }
   </style>
 </head>
 <body>
@@ -94,98 +108,62 @@
   <header>
     <h1>{{ resume.name }}</h1>
     <div class="contact">
-      <span>{{ resume.contact.phone }}</span>
-      <span>{{ resume.contact.email }}</span>
-      <span>{{ resume.contact.linkedin }}</span>
+      <span>{{ resume.contact.phone }}</span><span class="sep">|</span>
+      <span>{{ resume.contact.email }}</span><span class="sep">|</span>
+      <span>{{ resume.contact.linkedin }}</span><span class="sep">|</span>
       <span>{{ resume.contact.location }}</span>
     </div>
   </header>
 
-  <!-- Education -->
+  <!-- Education: stacked with <br> between name/location and degree/dates -->
   <section class="section">
     <h2 class="section-title">Education</h2>
     {% for edu in resume.education %}
-      <div class="two-col">
-        <div class="item-header">{{ edu.institution }}</div>
-        <div class="sub-header">{{ edu.location }}</div>
-      </div>
-      <div class="two-col" style="margin-top: 1px;">
-        <div>{{ edu.degree }}{% if edu.gpa %}, GPA {{ edu.gpa }}{% endif %}</div>
-        <div class="sub-header">{{ edu.dates }}</div>
-      </div>
+      <div class="item-header">{{ edu.institution }} <span class="muted">{{ edu.location }}</span></div>
+      <div>{{ edu.degree }}{% if edu.gpa %}, GPA {{ edu.gpa }},{% endif %} <span class="muted">{{ edu.dates }}</span></div>
       {% if edu.coursework %}
-        <div style="margin-top: 2px; font-size: 9.5pt;">
-          <strong>Coursework:</strong>
-          {{ edu.coursework | join(', ') }}.
-        </div>
+        <div style="margin-top: 1px; font-size: 10pt;"><strong>Coursework:</strong> {{ edu.coursework | join(', ') }}.</div>
       {% endif %}
+      {% if not loop.last %}<br>{% endif %}
     {% endfor %}
   </section>
 
-  <!-- Skills -->
+  <!-- Skills: one line per category -->
   <section class="section">
     <h2 class="section-title">Skills</h2>
-    <div>
-      <div><strong>Product &amp; Strategy:</strong></div>
-      <div class="pill-list">
-        {% for s in resume.skills.product_and_strategy %}
-          <span>{{ s }}</span>
-        {% endfor %}
-      </div>
-    </div>
-    <div style="margin-top: 3px;">
-      <div><strong>Data &amp; Analytics:</strong></div>
-      <div class="pill-list">
-        {% for s in resume.skills.data_and_analytics %}
-          <span>{{ s }}</span>
-        {% endfor %}
-      </div>
-    </div>
-    <div style="margin-top: 3px;">
-      <div><strong>Platforms &amp; Tools:</strong></div>
-      <div class="pill-list">
-        {% for s in resume.skills.platforms_and_tools %}
-          <span>{{ s }}</span>
-        {% endfor %}
-      </div>
-    </div>
+    <div class="skill-line"><strong>Product &amp; Strategy:</strong> <span class="vals">{{ resume.skills.product_and_strategy | join(', ') }}</span></div>
+    <div class="skill-line"><strong>Data &amp; Analytics:</strong> <span class="vals">{{ resume.skills.data_and_analytics | join(', ') }}</span></div>
+    <div class="skill-line"><strong>Platforms &amp; Tools:</strong> <span class="vals">{{ resume.skills.platforms_and_tools | join(', ') }}</span></div>
   </section>
 
-  <!-- Experience -->
+  <!-- Experience: stacked with <br> between company/location and between each company -->
   <section class="section">
     <h2 class="section-title">Professional Experience</h2>
     {% for exp in resume.experience %}
-      <div class="two-col">
-        <div class="item-header">{{ exp.company }}, {{ exp.role }}</div>
-        <div class="sub-header">{{ exp.location }}</div>
-      </div>
-      <div class="two-col" style="margin-top: 1px;">
-        <div></div>
-        <div class="sub-header">{{ exp.dates }}</div>
-      </div>
+      <div class="item-header">{{ exp.company }}, {{ exp.role }} <span class="muted">{{ exp.location }}</span></div>
+      <div class="muted">{{ exp.dates }}</div>
       <ul>
         {% for bullet in exp.bullets %}
           <li>{{ bullet }}</li>
         {% endfor %}
       </ul>
+      {% if not loop.last %}<br>{% endif %}
     {% endfor %}
   </section>
 
-  <!-- Projects -->
+  <!-- Projects: <br> between each project -->
   <section class="section">
     <h2 class="section-title">Projects</h2>
     {% for proj in resume.projects %}
       <div class="item-header">
-        {{ proj.name }}
-        {% if proj.stack %}
-          — <span class="sub-header">{{ proj.stack }}</span>
-        {% endif %}
+        {{ proj.name }}{% if proj.stack %} — <span class="sub-header">{{ proj.stack }}</span>{% endif %}
       </div>
       <ul>
         {% for bullet in proj.bullets %}
           <li>{{ bullet }}</li>
         {% endfor %}
       </ul>
+      {% if not loop.last %}<br>{% endif %}
     {% endfor %}
   </section>
 
@@ -200,4 +178,3 @@
   </section>
 </body>
 </html>
-

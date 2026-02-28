@@ -1,90 +1,113 @@
+"""Job description analysis using the recruiter-style prompt."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 import openai_client
+
+JD_ANALYSIS_SYSTEM = (
+  "You are an expert technical recruiter and hiring manager. "
+  "You decode the signal behind the words in job descriptions. "
+  "Respond with a single JSON object ONLY, no extra commentary. "
+  "Be precise. Avoid generic advice. Think like someone who must decide in 10 seconds whether to interview."
+)
+
+JD_ANALYSIS_USER_TEMPLATE = """I will paste a job description.
+Your task is to decode the signal behind the words.
+
+Return a JSON object with exactly these fields (all arrays of strings unless noted):
+1) top_skills - hard skills / tools / methods
+2) core_competencies - behaviors, ways of working
+3) primary_problems - primary problems the team is trying to solve
+4) metrics_outcomes - metrics or outcomes they care about
+5) seniority_signals - ownership level, autonomy, stakeholder scope
+6) hidden_ats_keywords - keywords that ATS systems will likely search for
+7) perfect_candidate_signals - what a perfect candidate probably did in past roles
+8) keyword_rankings - an object with three arrays: "critical", "important", "nice_to_have" (ranked by importance)
+
+Be precise. Avoid generic advice.
+
+JOB DESCRIPTION:
+\"\"\"
+{jd_text}
+\"\"\"
+"""
+
+
+@dataclass
+class KeywordRankings:
+  critical: List[str] = field(default_factory=list)
+  important: List[str] = field(default_factory=list)
+  nice_to_have: List[str] = field(default_factory=list)
 
 
 @dataclass
 class JobAnalysis:
-  """Structured representation of a job description."""
+  top_skills: List[str]
+  core_competencies: List[str]
+  primary_problems: List[str]
+  metrics_outcomes: List[str]
+  seniority_signals: List[str]
+  hidden_ats_keywords: List[str]
+  perfect_candidate_signals: List[str]
+  keyword_rankings: KeywordRankings
 
-  role_title: str
-  seniority_level: Optional[str]
-  location: Optional[str]
-  employment_type: Optional[str]
-  required_skills: List[str]
-  preferred_skills: List[str]
-  primary_responsibilities: List[str]
-  keywords_technical: List[str]
-  keywords_tools: List[str]
-  keywords_domains: List[str]
-  keywords_methodologies: List[str]
-  keywords_certifications: List[str]
+
+def _list(value: Any) -> List[str]:
+  if not value:
+    return []
+  if isinstance(value, list):
+    return [str(v).strip() for v in value if str(v).strip()]
+  if isinstance(value, str) and value.strip():
+    return [value.strip()]
+  return []
+
+
+def _rankings(value: Any) -> KeywordRankings:
+  if not isinstance(value, dict):
+    return KeywordRankings()
+  return KeywordRankings(
+    critical=_list(value.get("critical")),
+    important=_list(value.get("important")),
+    nice_to_have=_list(value.get("nice_to_have")),
+  )
 
 
 def analyze_job_description(jd_text: str) -> JobAnalysis:
-  """Analyze raw JD text using OpenAI and return structured information.
-
-  This is used when the user pastes a job description directly.
-  """
+  """Analyze raw JD text using the recruiter-style prompt."""
   jd_text = jd_text.strip()
   if not jd_text:
     raise ValueError("Job description text is empty.")
 
-  system_prompt = (
-    "You are an assistant that analyzes job descriptions and returns a clean, "
-    "JSON-structured summary for resume optimization and ATS alignment.\n\n"
-    "Respond with a single JSON object ONLY, no extra commentary."
-  )
-
-  user_prompt = f"""
-Analyze the following job description and extract structured information
-useful for tailoring a resume.
-
-Return a JSON object with exactly these fields:
-- role_title: string
-- seniority_level: string or null (e.g., 'Junior', 'Mid', 'Senior', 'Lead', 'Director')
-- location: string or null
-- employment_type: string or null (e.g., 'Full-time', 'Internship', 'Contract')
-- required_skills: array of strings
-- preferred_skills: array of strings
-- primary_responsibilities: array of concise bullet-style strings
-- keywords_technical: array of strings (technical skills, programming languages, data tools, etc.)
-- keywords_tools: array of strings (named tools, platforms, SaaS products)
-- keywords_domains: array of strings (domains/industries like 'healthcare', 'fintech', 'e-commerce')
-- keywords_methodologies: array of strings (e.g., 'A/B testing', 'Agile', 'Scrum', 'RAG', 'LLMOps')
-- keywords_certifications: array of strings (certifications or formal qualifications if mentioned)
-
-JOB DESCRIPTION:
-\"\"\"{jd_text}\"\"\"
-"""
-
-  data = openai_client.chat_json(system_prompt, user_prompt)
-
-  # Safely pull fields with sensible defaults.
-  def _list(field: str) -> list[str]:
-    value = data.get(field) or []
-    if isinstance(value, list):
-      return [str(v).strip() for v in value if str(v).strip()]
-    # If the model returned a string accidentally, wrap it.
-    if isinstance(value, str) and value.strip():
-      return [value.strip()]
-    return []
+  user_prompt = JD_ANALYSIS_USER_TEMPLATE.format(jd_text=jd_text)
+  data = openai_client.chat_json(JD_ANALYSIS_SYSTEM, user_prompt)
 
   return JobAnalysis(
-    role_title=str(data.get("role_title", "")).strip(),
-    seniority_level=(str(data["seniority_level"]).strip() if data.get("seniority_level") not in (None, "") else None),
-    location=(str(data["location"]).strip() if data.get("location") not in (None, "") else None),
-    employment_type=(str(data["employment_type"]).strip() if data.get("employment_type") not in (None, "") else None),
-    required_skills=_list("required_skills"),
-    preferred_skills=_list("preferred_skills"),
-    primary_responsibilities=_list("primary_responsibilities"),
-    keywords_technical=_list("keywords_technical"),
-    keywords_tools=_list("keywords_tools"),
-    keywords_domains=_list("keywords_domains"),
-    keywords_methodologies=_list("keywords_methodologies"),
-    keywords_certifications=_list("keywords_certifications"),
+    top_skills=_list(data.get("top_skills")),
+    core_competencies=_list(data.get("core_competencies")),
+    primary_problems=_list(data.get("primary_problems")),
+    metrics_outcomes=_list(data.get("metrics_outcomes")),
+    seniority_signals=_list(data.get("seniority_signals")),
+    hidden_ats_keywords=_list(data.get("hidden_ats_keywords")),
+    perfect_candidate_signals=_list(data.get("perfect_candidate_signals")),
+    keyword_rankings=_rankings(data.get("keyword_rankings")),
   )
 
+
+def job_analysis_to_dict(a: JobAnalysis) -> Dict[str, Any]:
+  """Serialize for API/JSON."""
+  return {
+    "top_skills": a.top_skills,
+    "core_competencies": a.core_competencies,
+    "primary_problems": a.primary_problems,
+    "metrics_outcomes": a.metrics_outcomes,
+    "seniority_signals": a.seniority_signals,
+    "hidden_ats_keywords": a.hidden_ats_keywords,
+    "perfect_candidate_signals": a.perfect_candidate_signals,
+    "keyword_rankings": {
+      "critical": a.keyword_rankings.critical,
+      "important": a.keyword_rankings.important,
+      "nice_to_have": a.keyword_rankings.nice_to_have,
+    },
+  }
