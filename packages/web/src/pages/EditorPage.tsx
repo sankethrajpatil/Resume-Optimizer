@@ -210,6 +210,11 @@ export default function EditorPage() {
 
   const previewHtml = usePreviewHtml(resume);
 
+  // Load Sanketh's default resume on first mount so fields are pre-filled.
+  useEffect(() => {
+    loadExample();
+  }, [loadExample]);
+
   const handleImport = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

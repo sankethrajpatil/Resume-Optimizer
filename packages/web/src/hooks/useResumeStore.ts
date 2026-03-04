@@ -13,23 +13,136 @@ import type {
 /* ── helpers ─────────────────────────────────────────────────────── */
 
 function emptyResume(): ResumeData {
+  // Default resume: Sanketh's base data parsed from PDF.
   return {
-    name: "",
+    name: "Sanketh Rajshekhar Patil",
     title: "",
-    email: "",
+    email: "patil232@purdue.edu",
     phone_e164: "",
-    phone_display: "",
-    location: "",
-    linkedin_url: "",
+    phone_display: "(765)-543-9608",
+    location: "West Lafayette, IN",
+    linkedin_url: "https://www.linkedin.com/in/sanketh-raj-patil/",
     github_url: "",
     website_url: "",
     summary: "",
-    skills: [],
-    projects: [],
-    experience: [],
-    education: [],
+    skills: [
+      {
+        group: "Product & Strategy",
+        items: [
+          "Discovery",
+          "Experimentation",
+          "KPI Design",
+          "Roadmaps",
+          "PRDs",
+          "OKRs",
+          "Market & User Research",
+        ],
+      },
+      {
+        group: "Data & Analytics",
+        items: [
+          "Python",
+          "SQL",
+          "Statistics",
+          "Data Modeling",
+          "ML/AI Fundamentals",
+          "APIs",
+          "LLM-enabled workflows",
+        ],
+      },
+      {
+        group: "Platforms & Tools",
+        items: [
+          "JIRA",
+          "Confluence",
+          "Power BI",
+          "Figma",
+          "Automation Frameworks",
+          "Cloud (SAP BTP and AWS)",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title:
+          "AI-Driven Persona Targeted Website Content Optimization",
+        stack: "Python, NLP frameworks, SEO analytics, A/B testing",
+        bullets: [
+          "Solved low engagement on OTT website and UX, improving engagement by ~25% with KPI pipelines.",
+        ],
+        links: [],
+      },
+      {
+        title: "Discovery Growth for YouTube",
+        stack:
+          "Python, SQL, Product Analytics, Experimentation, Behavioral Data Analysis",
+        bullets: [
+          "Identified blind spots in attributing non-engagement to content quality, enabling feed optimizations to lift engagement by ~12%.",
+        ],
+        links: [],
+      },
+      {
+        title: "Illume - AI Trend Capture Marketing Platform",
+        stack: "",
+        bullets: [
+          "Designed plug-and-play ad placement in viral and trending videos, reducing manual marketing effort by ~95%.",
+        ],
+        links: [],
+      },
+    ],
+    experience: [
+      {
+        role: "Graduate Data Science Researcher — J&J",
+        company: "The Data Mine, Purdue University",
+        date: "January 2026 – May 2026",
+        bullets: [
+          "Collaborated with Johnson & Johnson to integrate RAG models and build an agentic AI for their budget dashboard.",
+          "Enabled real-time analytics and anomaly flags for budget thresholds, improving response time by ~40%.",
+        ],
+      },
+      {
+        role: "Product Quality",
+        company: "SAP",
+        date: "July 2022 – July 2025",
+        bullets: [
+          "Led 0→1 launch of Ariba Insights for Quality, an enterprise product for benchmarking supplier performance.",
+          "Designed AI-assisted workflows to surface performance signals, accelerating decision cycles by ~30%.",
+          "Identified unmet customer needs around visibility and decision latency, shaping success metrics aligned with GTM.",
+          "Built usage metering, cost dashboards, and health signals to track adoption and stability across enterprise customers.",
+          "Simplified user stories and documentation across US, EU, and APAC teams, reducing onboarding time by ~3 weeks.",
+        ],
+      },
+      {
+        role: "Developer Intern",
+        company: "SAP",
+        date: "January 2022 – July 2022",
+        bullets: [
+          "Implemented custom error messages for SAP Business ByDesign using ABAP, improving user clarity by up to 10%.",
+        ],
+      },
+    ],
+    education: [
+      {
+        title:
+          "Master of Business and Technology (Tech MBA) – AI, 3.6/4",
+        subtitle: "Purdue University, Daniels School of Business",
+        date: "August 2025 – Dec 2026",
+      },
+      {
+        title: "Mechanical Engineering, GPA 3.8/4",
+        subtitle: "University of Visvesvaraya College of Engineering",
+        date: "June 2022",
+      },
+    ],
     languages: [],
-    labels: {}, // ✅ habilita custom labels
+    labels: {
+      summary: "SUMMARY",
+      skills: "SKILLS",
+      projects: "PROJECTS",
+      experience: "PROFESSIONAL EXPERIENCE",
+      education: "EDUCATION",
+      languages: "LANGUAGES",
+    },
   };
 }
 
@@ -400,8 +513,9 @@ export function useResumeStore() {
   }, [resume]);
 
   const exportPdf = useCallback(async (html: string) => {
-    const base = import.meta.env.VITE_PDF_SERVICE_URL;
-    if (!base) throw new Error("Missing VITE_PDF_SERVICE_URL");
+    const base =
+      import.meta.env.VITE_PDF_SERVICE_URL?.toString().trim() ||
+      "http://localhost:4300";
 
     const res = await fetch(`${base}/export-pdf`, {
       method: "POST",

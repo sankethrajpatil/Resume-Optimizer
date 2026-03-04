@@ -1,6 +1,6 @@
 import express from "express";
 import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
+import puppeteerCore from "puppeteer-core";
 import cors from "cors";
 import { Redis } from "@upstash/redis";
 
@@ -27,12 +27,19 @@ app.post("/export-pdf", async (req, res) => {
       return res.status(400).json({ error: "Missing html" });
     }
 
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+    // On Windows local dev, use bundled Chromium from 'puppeteer' to avoid
+    // relying on serverless chromium paths (which fail on Windows).
+    if (process.platform === "win32") {
+      const puppeteer = (await import("puppeteer")).default;
+      browser = await puppeteer.launch({ headless: "new" });
+    } else {
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    }
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -66,5 +73,5 @@ app.post("/export-pdf", async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4300;
 app.listen(port, () => console.log(`pdf-service listening on :${port}`));
