@@ -5,15 +5,23 @@ node_modules/
 dist/
 .out/
 .vercel/
+.next/
 
 # generated files
 *.pdf
+output/
 
 # caches
 .playwright/
 playwright/.cache/
 .vite/
 .cache/
+__pycache__/
+.pytest_cache/
+
+# npm lockfiles (pnpm workspace)
+package-lock.json
+**/package-lock.json
 
 # environment
 .env
