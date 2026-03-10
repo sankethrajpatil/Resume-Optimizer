@@ -533,6 +533,7 @@ export default function EditorPage() {
                   />
                   <Button
                     onClick={handleLinkSubmit}
+                    variant="secondary"
                     className={`md:w-auto w-full ${isAiLoading ? "opacity-60 pointer-events-none" : ""}`}
                   >
                     {isAiLoading ? "Working…" : "Tailor from link"}
@@ -552,6 +553,7 @@ export default function EditorPage() {
                 <div className="flex justify-end">
                   <Button
                     onClick={handleJdSubmit}
+                    variant="secondary"
                     className={`md:w-auto w-full ${isAiLoading ? "opacity-60 pointer-events-none" : ""}`}
                   >
                     {isAiLoading ? "Working…" : "Tailor from JD"}
