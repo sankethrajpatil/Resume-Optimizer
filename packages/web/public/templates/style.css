@@ -5,8 +5,8 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  font-size: 9pt;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 10pt;
   color: #111;
   line-height: 1.25;
   background: #fff;
@@ -81,17 +81,17 @@ a {
 }
 
 .item-subtitle {
-  font-size: 9.5pt;
+  font-size: 10pt;
 }
 
 .item-date {
-  font-size: 9pt;
+  font-size: 10pt;
   font-style: italic;
   white-space: nowrap;
 }
 
 .tech-line {
-  font-size: 9pt;
+  font-size: 10pt;
   font-style: italic;
   margin-top: 1px;
 }
@@ -105,6 +105,7 @@ a {
   padding-left: 12pt;
   position: relative;
   margin-bottom: 6px;
+  font-size: 10pt;
 }
 
 .bullets li::before {
