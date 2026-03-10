@@ -206,6 +206,10 @@ export default function EditorPage() {
   const [showClearModal, setShowClearModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [jobUrl, setJobUrl] = useState("");
+  const [jobText, setJobText] = useState("");
+  const [aiStatus, setAiStatus] = useState<string>("");
+  const [aiError, setAiError] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const previewHtml = usePreviewHtml(resume);
@@ -232,6 +236,113 @@ export default function EditorPage() {
       setIsExporting(false);
     }
   };
+
+  const normalizeBullet = (text: string) => {
+    const clean = text.replace(/\s+/g, " ").trim();
+    if (!clean) return "";
+    if (clean.length <= 125) return clean;
+    const chunk = clean.slice(0, 125);
+    const lastSpace = chunk.lastIndexOf(" ");
+    return (lastSpace > 60 ? chunk.slice(0, lastSpace) : chunk).trim();
+  };
+
+  const mapAiSkills = (skills: { name?: string; keywords?: string[] }[]) => {
+    return skills.map((s, idx) => ({
+      group: s.name?.trim() || resume.skills[idx]?.group || `Skill ${idx + 1}`,
+      items: (s.keywords ?? []).map((k) => k.trim()).filter(Boolean),
+    }));
+  };
+
+  const mapAiProjects = (projects: { name?: string; description?: string; keywords?: string[] }[]) => {
+    return projects.map((p, idx) => {
+      const base = resume.projects[idx] ?? resume.projects[0] ?? {
+        title: "",
+        stack: "",
+        bullets: [],
+        links: [],
+      };
+      const bullets: string[] = [];
+      if (p.description) bullets.push(p.description);
+      if (p.keywords?.length) bullets.push(...p.keywords.map((k) => `Applied to ${k}`));
+      return {
+        title: p.name?.trim() || base.title,
+        stack: base.stack || (p.keywords ?? []).join(", "),
+        bullets: bullets.map(normalizeBullet).filter(Boolean).slice(0, 3),
+        links: base.links ?? [],
+      };
+    });
+  };
+
+  const handleLinkSubmit = async () => {
+    const url = jobUrl.trim();
+    if (!url) return;
+    setAiStatus("Tailoring resume from link…");
+    setAiError("");
+    try {
+      const res = await fetch("/api/job-link-to-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, resume }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || res.statusText);
+      }
+
+      const data = (await res.json()) as { resume?: ResumeData };
+      if (data.resume) {
+        dispatch({ type: "REPLACE_ALL", data: data.resume });
+        setActiveTab("skills");
+        setAiStatus("Resume tailored from link");
+      } else {
+        setAiStatus("");
+        setAiError("Unexpected response from AI service");
+      }
+    } catch (e: any) {
+      setAiStatus("");
+      setAiError(e?.message || "Failed to tailor resume");
+    }
+  };
+
+  const handleJdSubmit = async () => {
+    const text = jobText.trim();
+    if (!text) return;
+    setAiStatus("Tailoring resume from JD…");
+    setAiError("");
+    try {
+      const res = await fetch("/api/jd-to-resume-json", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jd_text: text }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || data.error || res.statusText);
+      }
+
+      const data = (await res.json()) as {
+        skills?: { name?: string; keywords?: string[] }[];
+        projects?: { name?: string; description?: string; keywords?: string[] }[];
+      };
+
+      const nextResume: ResumeData = {
+        ...resume,
+        skills: data.skills ? mapAiSkills(data.skills) : resume.skills,
+        projects: data.projects ? mapAiProjects(data.projects) : resume.projects,
+      };
+
+      dispatch({ type: "REPLACE_ALL", data: nextResume });
+      setActiveTab("skills");
+      setAiStatus("Resume tailored from JD");
+    } catch (e: any) {
+      setAiStatus("");
+      setAiError(e?.message || "Failed to tailor resume");
+    }
+  };
+
+  const isAiLoading = aiStatus.endsWith("…");
 
   const handleClearConfirm = () => {
     resetResume();
@@ -401,6 +512,55 @@ export default function EditorPage() {
         <div
           className={`flex-1 min-w-0 ${showPreview ? "lg:max-w-[50%]" : ""}`}
         >
+          <div className="rounded-xl border border-border-secondary bg-white/5 shadow-xs p-4 lg:p-5 mb-4 space-y-3">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+              <SectionTitle>Tailor with a job link or JD</SectionTitle>
+              {aiStatus && !aiError && (
+                <span className="text-sm text-emerald-600">{aiStatus}</span>
+              )}
+              {aiError && <span className="text-sm text-error-500">{aiError}</span>}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="jobUrl">Job posting link</Label>
+                <div className="flex flex-col md:flex-row gap-2">
+                  <Input
+                    id="jobUrl"
+                    value={jobUrl}
+                    onChange={setJobUrl}
+                    placeholder="https://company.com/careers/job-id"
+                  />
+                  <Button
+                    onClick={handleLinkSubmit}
+                    className={`md:w-auto w-full ${isAiLoading ? "opacity-60 pointer-events-none" : ""}`}
+                  >
+                    {isAiLoading ? "Working…" : "Tailor from link"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="jobText">Or paste the job description</Label>
+                <Textarea
+                  id="jobText"
+                  value={jobText}
+                  onChange={setJobText}
+                  rows={4}
+                  placeholder="Paste the full JD here"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleJdSubmit}
+                    className={`md:w-auto w-full ${isAiLoading ? "opacity-60 pointer-events-none" : ""}`}
+                  >
+                    {isAiLoading ? "Working…" : "Tailor from JD"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <nav className="flex gap-1 mb-2 lg:mb-3 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
             {TAB_KEYS.map((key) => (
               <button
