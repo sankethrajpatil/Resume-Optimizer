@@ -26,6 +26,6 @@
       "@ats-resume/core/*": ["../core/src/*"]
     }
   },
-  "include": ["src", "vite-env.d.ts", "api/**/*.ts"],
+  "include": ["src", "vite-env.d.ts", "api/**/*.ts", "dev-server.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
