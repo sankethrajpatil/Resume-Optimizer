@@ -212,6 +212,8 @@ export default function EditorPage() {
   const [aiError, setAiError] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const apiBase = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+
   const previewHtml = usePreviewHtml(resume);
 
   // Load Sanketh's default resume on first mount so fields are pre-filled.
@@ -279,7 +281,7 @@ export default function EditorPage() {
     setAiStatus("Tailoring resume from link…");
     setAiError("");
     try {
-      const res = await fetch("/api/job-link-to-resume", {
+      const res = await fetch(`${apiBase}/api/job-link-to-resume`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, resume }),
@@ -311,7 +313,7 @@ export default function EditorPage() {
     setAiStatus("Tailoring resume from JD…");
     setAiError("");
     try {
-      const res = await fetch("/api/jd-to-resume-json", {
+      const res = await fetch(`${apiBase}/api/jd-to-resume-json`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jd_text: text }),
